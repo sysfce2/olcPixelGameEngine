@@ -6797,12 +6797,43 @@ namespace olc
 		//TY Moros
 		static EM_BOOL keyboard_callback(int eventType, const EmscriptenKeyboardEvent* e, void* userData)
 		{
-			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
-				ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], true);
+			// we maintain our own state for the number pad
+			static bool numPadActive = true;
 
 			// THANK GOD!! for this compute function. And thanks Dandistine for pointing it out!
+			int pk_code = emscripten_compute_dom_pk_code(e->code);
+
+			if (!numPadActive)
+			{
+				switch(pk_code)
+				{
+					case DOM_PK_NUMPAD_7: pk_code = DOM_PK_HOME; break;
+					case DOM_PK_NUMPAD_8: pk_code = DOM_PK_ARROW_UP; break;
+					case DOM_PK_NUMPAD_9: pk_code = DOM_PK_PAGE_UP; break;
+					case DOM_PK_NUMPAD_4: pk_code = DOM_PK_ARROW_LEFT; break;
+					case DOM_PK_NUMPAD_5: pk_code = DOM_PK_UNKNOWN; break;
+					case DOM_PK_NUMPAD_6: pk_code = DOM_PK_ARROW_RIGHT; break;
+					case DOM_PK_NUMPAD_1: pk_code = DOM_PK_END; break;
+					case DOM_PK_NUMPAD_2: pk_code = DOM_PK_ARROW_DOWN; break;
+					case DOM_PK_NUMPAD_3: pk_code = DOM_PK_PAGE_DOWN; break;
+					case DOM_PK_NUMPAD_0: pk_code = DOM_PK_INSERT; break;
+					case DOM_PK_NUMPAD_DECIMAL: pk_code = DOM_PK_DELETE; break;
+					default:
+						break;
+				}
+			}
+			
+			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN && pk_code == DOM_PK_NUM_LOCK)
+			{
+				numPadActive = !numPadActive;
+			}
+
+			if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
+				ptrPGE->olc_UpdateKeyState(mapKeys[pk_code], true);
+				
+
 			if (eventType == EMSCRIPTEN_EVENT_KEYUP)
-				ptrPGE->olc_UpdateKeyState(mapKeys[emscripten_compute_dom_pk_code(e->code)], false);
+				ptrPGE->olc_UpdateKeyState(mapKeys[pk_code], false);
 
 			//Consume keyboard events so that keys like F1 and F5 don't do weird things
 			return EM_TRUE;
