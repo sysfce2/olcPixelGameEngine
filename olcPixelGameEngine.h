@@ -6088,6 +6088,7 @@ namespace olc
 			mapKeys[XK_semicolon] = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
 			mapKeys[XK_slash] = Key::OEM_2;			// On US and UK keyboards this is the '/?' key
 			mapKeys[XK_asciitilde] = Key::OEM_3;	// On US keyboard this is the '~' key
+			mapKeys[XK_grave] = Key::OEM_3;	// On US keyboard this is the '`' key
 			mapKeys[XK_bracketleft] = Key::OEM_4;	// On US and UK keyboards this is the '[{' key
 			mapKeys[XK_backslash] = Key::OEM_5;		// On US keyboard this is '\|' key.
 			mapKeys[XK_bracketright] = Key::OEM_6;	// On US and UK keyboards this is the ']}' key
