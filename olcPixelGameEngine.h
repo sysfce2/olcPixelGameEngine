@@ -6377,10 +6377,76 @@ namespace olc {
 			
 			glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 
-			// Create Keyboard Mapping
-			mapKeys[0x00] = Key::NONE;
+			/**
+			 * 		IMPLEMENTATION NOTES by Moros1138
+			 * 
+			 * The GLUT keyboard handling is kind of clunky and doesn't actually expose us to
+			 * all of the keys on a keyboard. This makes it impossible for us to make GLUT's
+			 * keyboard handling consistent with the other platforms.
+			 * 
+			 * 		DIFFERENCES FROM OTHER PLATFORMS
+			 * 
+			 * 			Numpad Numbers and / * + - . fire as both numpad and keyboard keys.
+			 * 			
+			 * 			Pressing 0, will trigger Key::K0 and Key::NP0
+			 * 
+			 * 		MISSING KEYS
+			 * 
+			 * 		As a result of the way GLUT handles the keyboard, the following keys
+			 * 		could not be captured and handled:
+			 * 
+			 * 			Key::CAPS_LOCK
+			 * 			Key::SCROLL
+			 * 			Key::PAUSE
+			 * 
+			 * 		THE EXPLANATION
+			 * 
+			 * GLUT breaks up the keyboard into 2 primary categories. That which can be expressed
+			 * by ASCII, and those that can't.
+			 * 
+			 * ASCII codes are handled by callbacks defined by glutKeyboardFunc and glutKeyboardUpFunc
+			 * 
+			 * 		See: https://www.asciitable.com/
+			 * 
+			 * 		These codes are handled directly by the callbacks, this is a problem for 
+			 * 		a few reasons.
+			 * 
+			 * 		First, there's no way to differentiate the numbers. It's just a number.
+			 * 		Whether it was the result of a keypress from Key::K0 -> Key::K9 or Key::NP0 -> Key::NP9
+			 * 		is entirely lost.
+			 * 
+			 * 		Second, we can't map multiple keys to a single ascii code, the subsequent assignments
+			 * 		would overwrite the previous, leaving gaps in the handling.
+			 * 
+			 * 		- THE SOLUTION -
+			 * 
+			 * 			The ascii codes exist within the space of an unsigned char, but the mapKeys "key"
+			 * 			is of type size_t, which means we can exploit the extra space to provide some
+			 * 			extra indicators.
+			 * 
+			 * 			a numpadFlag, of the value 0x40000000 can be OR with the ascii code to allow
+			 * 			us to map multiple PGE keys to the same ascii code.
+			 * 
+			 * "Special" codes are handled by callbacks defined by glutSpecialFunc and glutSpecialUpFunc
+			 * 
+			 * 		See: https://www.opengl.org/resources/libraries/glut/spec3/node54.html#SECTION00089000000000000000
+			 * 		
+			 * 		These codes are handled directly by the callbacks. The problem we experience here is that these
+			 * 		codes are in conflict with the ASCII codes, so we can't simply map them.
+			 * 
+			 * 		- THE SOLUTION -
+			 * 		
+			 * 			Similar to the numpad solution, see above, the "special" key values all exist in low end
+			 * 			which means we can exploit the extra space to provide some indicators.
+			 * 
+			 * 			a specialFlag, of the value 0x80000000 can be OR with the "special" key code to allow
+			 * 			us to map it without having to create a whole set of extra handling later in the pipe.
+			 * 
+			*/
 			
-			// glut accounts for both uppercase and lowercase letters, let's loop 'em
+			mapKeys[0x00] = Key::NONE;
+
+			// account for uppercase and lowercase letters
 			{
 				int counter = (int)Key::A;
 				for(size_t key = (size_t)'A', key2 = (size_t)'a'; key <= (size_t)'Z'; key++, key2++)
@@ -6390,24 +6456,43 @@ namespace olc {
 					counter++;
 				}
 			}
-			mapKeys[8] = Key::BACK;
-			mapKeys[9] = Key::TAB;
-			mapKeys[13] = Key::ENTER;
-			mapKeys[127] = Key::DEL;
-			mapKeys[27] = Key::ESCAPE;
-			mapKeys[' '] = Key::SPACE;
+			
+			constexpr int specialFlag = 0x80000000;
+			constexpr int numpadFlag  = 0x40000000;
+			
+			// "special" keys
+			mapKeys[GLUT_KEY_F1         | specialFlag] = Key::F1;    mapKeys[GLUT_KEY_F2         | specialFlag] = Key::F2;
+			mapKeys[GLUT_KEY_F3         | specialFlag] = Key::F3;    mapKeys[GLUT_KEY_F4         | specialFlag] = Key::F4;
+			mapKeys[GLUT_KEY_F5         | specialFlag] = Key::F5;    mapKeys[GLUT_KEY_F6         | specialFlag] = Key::F6;
+			mapKeys[GLUT_KEY_F7         | specialFlag] = Key::F7;    mapKeys[GLUT_KEY_F8         | specialFlag] = Key::F8;
+			mapKeys[GLUT_KEY_F9         | specialFlag] = Key::F9;    mapKeys[GLUT_KEY_F10        | specialFlag] = Key::F10;
+			mapKeys[GLUT_KEY_F11        | specialFlag] = Key::F11;   mapKeys[GLUT_KEY_F12        | specialFlag] = Key::F12;
+			mapKeys[GLUT_KEY_LEFT       | specialFlag] = Key::LEFT;  mapKeys[GLUT_KEY_UP         | specialFlag] = Key::UP;
+			mapKeys[GLUT_KEY_RIGHT      | specialFlag] = Key::RIGHT; mapKeys[GLUT_KEY_DOWN       | specialFlag] = Key::DOWN;
+			mapKeys[GLUT_KEY_PAGE_UP    | specialFlag] = Key::PGUP;  mapKeys[GLUT_KEY_PAGE_DOWN  | specialFlag] = Key::PGDN;
+			mapKeys[GLUT_KEY_HOME       | specialFlag] = Key::HOME;  mapKeys[GLUT_KEY_END        | specialFlag] = Key::END;
+			mapKeys[GLUT_KEY_INSERT     | specialFlag] = Key::INS;   mapKeys[GLUT_KEY_DELETE     | specialFlag] = Key::DEL;
+			mapKeys[GLUT_KEY_SHIFT_L    | specialFlag] = Key::SHIFT; mapKeys[GLUT_KEY_SHIFT_R    | specialFlag] = Key::SHIFT;
+			mapKeys[GLUT_KEY_CTRL_L     | specialFlag] = Key::CTRL;  mapKeys[GLUT_KEY_CTRL_R     | specialFlag] = Key::CTRL;
+
+			// numpad keys
+			mapKeys['1' | numpadFlag] = Key::NP1;    mapKeys['2' | numpadFlag] = Key::NP2;    mapKeys['3' | numpadFlag] = Key::NP3;
+			mapKeys['4' | numpadFlag] = Key::NP4;    mapKeys['5' | numpadFlag] = Key::NP5;    mapKeys['6' | numpadFlag] = Key::NP6;
+			mapKeys['7' | numpadFlag] = Key::NP7;    mapKeys['8' | numpadFlag] = Key::NP8;    mapKeys['9' | numpadFlag] = Key::NP9;
+			mapKeys['0' | numpadFlag] = Key::NP0;    mapKeys['/' | numpadFlag] = Key::NP_DIV; mapKeys['*' | numpadFlag] = Key::NP_MUL;
+			mapKeys['+' | numpadFlag] = Key::NP_ADD; mapKeys['-' | numpadFlag] = Key::NP_SUB; mapKeys['.' | numpadFlag] = Key::NP_DECIMAL;
+
+			mapKeys[8] = Key::BACK; mapKeys[9] = Key::TAB; mapKeys[13] = Key::ENTER;
+			mapKeys[127] = Key::DEL; mapKeys[27] = Key::ESCAPE; mapKeys[' '] = Key::SPACE;
 			mapKeys['.'] = Key::PERIOD;
 
-			mapKeys['1'] = Key::K1;
-			mapKeys['2'] = Key::K2;
-			mapKeys['3'] = Key::K3;
-			mapKeys['4'] = Key::K4;
-			mapKeys['5'] = Key::K5;
-			mapKeys['6'] = Key::K6;
-			mapKeys['7'] = Key::K7;
-			mapKeys['8'] = Key::K8;
-			mapKeys['9'] = Key::K9;
-			mapKeys['0'] = Key::K0;
+			mapKeys['0'] = Key::K0; mapKeys['1'] = Key::K1; mapKeys['2'] = Key::K2; mapKeys['3'] = Key::K3;
+			mapKeys['4'] = Key::K4; mapKeys['5'] = Key::K5; mapKeys['6'] = Key::K6; mapKeys['7'] = Key::K7;
+			mapKeys['8'] = Key::K8; mapKeys['9'] = Key::K9;
+
+			mapKeys[')'] = Key::K0; mapKeys['!'] = Key::K1; mapKeys['@'] = Key::K2; mapKeys['#'] = Key::K3;
+			mapKeys['$'] = Key::K4; mapKeys['%'] = Key::K5; mapKeys['^'] = Key::K6; mapKeys['&'] = Key::K7;
+			mapKeys['*'] = Key::K8; mapKeys['('] = Key::K9;
 
 			mapKeys[';']  = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
 			mapKeys[':']  = Key::OEM_1;		// On US and UK keyboards this is the ';:' key
@@ -6423,7 +6508,7 @@ namespace olc {
 			mapKeys['}']  = Key::OEM_6;		// On US and UK keyboards this is the ']}' key
 			mapKeys['\''] = Key::OEM_7;		// On US keyboard this is the single/double quote key. On UK, this is the single quote/@ symbol key
 			mapKeys['"']  = Key::OEM_7;		// On US keyboard this is the single/double quote key. On UK, this is the single quote/@ symbol key
-			mapKeys['#']  = Key::OEM_8;		// miscellaneous characters. Varies by keyboard. I believe this to be the '#~' key on UK keyboards
+			// mapKeys['#']  = Key::OEM_8;		// miscellaneous characters. Varies by keyboard. I believe this to be the '#~' key on UK keyboards
 			mapKeys['=']  = Key::EQUALS;	// the '+' key on any keyboard
 			mapKeys['+']  = Key::EQUALS;	// the '+' key on any keyboard
 			mapKeys[',']  = Key::COMMA;		// the comma key on any keyboard
@@ -6431,142 +6516,87 @@ namespace olc {
 			mapKeys['-']  = Key::MINUS;		// the minus key on any keyboard			
 			mapKeys['_']  = Key::MINUS;		// the minus key on any keyboard			
 
-			// NOTE: MISSING KEYS :O
-
-			glutKeyboardFunc([](unsigned char key, int x, int y) -> void {
-				
-				Key pgeKey = Key::NONE;
-				
-				auto it = mapKeys.find(key);
-				if(it != mapKeys.end())
-					pgeKey = (Key)mapKeys[key];
-				
-				std::cout << "Pressed: " << (int)key << "\n";
-				ptrPGE->olc_UpdateKeyState(pgeKey, true);
-				
-			});
-
-			glutKeyboardUpFunc([](unsigned char key, int x, int y) -> void {
-				
-				Key pgeKey = Key::NONE;
-				
-				auto it = mapKeys.find(key);
-				if(it != mapKeys.end())
-					pgeKey = (Key)mapKeys[key];
-				
-				std::cout << "Released: " << (int)key << "\n";
-				ptrPGE->olc_UpdateKeyState(pgeKey, false);
-			});
-
-			//Special keys
-			glutSpecialFunc([](int key, int x, int y) -> void {
-				
-				Key pgeKey = Key::NONE;
-				
+			// Handle KeyPress of the ascii codes
+			glutKeyboardFunc([](unsigned char key, int x, int y) -> void
+			{
+				// update the numpad keys as well
 				switch(key)
 				{
-					case GLUT_KEY_F1       : pgeKey = Key::F1;    break;
-					case GLUT_KEY_F2       : pgeKey = Key::F2;    break;
-					case GLUT_KEY_F3       : pgeKey = Key::F3;    break;
-					case GLUT_KEY_F4       : pgeKey = Key::F4;    break;
-					case GLUT_KEY_F5       : pgeKey = Key::F5;    break;
-					case GLUT_KEY_F6       : pgeKey = Key::F6;    break;
-					case GLUT_KEY_F7       : pgeKey = Key::F7;    break;
-					case GLUT_KEY_F8       : pgeKey = Key::F8;    break;
-					case GLUT_KEY_F9       : pgeKey = Key::F9;    break;
-					case GLUT_KEY_F10      : pgeKey = Key::F10;   break;
-					case GLUT_KEY_F11      : pgeKey = Key::F11;   break;
-					case GLUT_KEY_F12      : pgeKey = Key::F12;   break;
-					case GLUT_KEY_LEFT     : pgeKey = Key::LEFT;  break;
-					case GLUT_KEY_UP       : pgeKey = Key::UP;    break;
-					case GLUT_KEY_RIGHT    : pgeKey = Key::RIGHT; break;
-					case GLUT_KEY_DOWN     : pgeKey = Key::DOWN;  break;
-					case GLUT_KEY_PAGE_UP  : pgeKey = Key::PGUP;  break;
-					case GLUT_KEY_PAGE_DOWN: pgeKey = Key::PGDN;  break;
-					case GLUT_KEY_HOME     : pgeKey = Key::HOME;  break;
-					case GLUT_KEY_END      : pgeKey = Key::END;   break;
-					case GLUT_KEY_INSERT   : pgeKey = Key::INS;   break;
-					case 111               : pgeKey = Key::DEL;   break;
-					case 112               :
-					case 113               : pgeKey = Key::SHIFT; break;
-					case 114               :
-					case 115               : pgeKey = Key::CTRL; break;
+					case '0': case '1': case '2': case '3': case '4':
+					case '5': case '6': case '7': case '8': case '9':
+					case '/': case '*': case '+': case '-': case '.':
+						ptrPGE->olc_UpdateKeyState(mapKeys[key | numpadFlag], true);
+						break;
 					default:
-						std::cout << key << "\n";
-						break;	
+						break;
 				}
 				
-				std::cout << "Pressed: " << (int)key << "\n";
-				ptrPGE->olc_UpdateKeyState(pgeKey, true);
+				ptrPGE->olc_UpdateKeyState(mapKeys[key], true);
 			});
 
-			glutSpecialUpFunc([](int key, int x, int y) -> void {
-
-				Key pgeKey = Key::NONE;
-				
+			// Handle KeyRelease of the ascii codes
+			glutKeyboardUpFunc([](unsigned char key, int x, int y) -> void
+			{
+				// update the numpad keys as well
 				switch(key)
 				{
-					case GLUT_KEY_F1       : pgeKey = Key::F1;    break;
-					case GLUT_KEY_F2       : pgeKey = Key::F2;    break;
-					case GLUT_KEY_F3       : pgeKey = Key::F3;    break;
-					case GLUT_KEY_F4       : pgeKey = Key::F4;    break;
-					case GLUT_KEY_F5       : pgeKey = Key::F5;    break;
-					case GLUT_KEY_F6       : pgeKey = Key::F6;    break;
-					case GLUT_KEY_F7       : pgeKey = Key::F7;    break;
-					case GLUT_KEY_F8       : pgeKey = Key::F8;    break;
-					case GLUT_KEY_F9       : pgeKey = Key::F9;    break;
-					case GLUT_KEY_F10      : pgeKey = Key::F10;   break;
-					case GLUT_KEY_F11      : pgeKey = Key::F11;   break;
-					case GLUT_KEY_F12      : pgeKey = Key::F12;   break;
-					case GLUT_KEY_LEFT     : pgeKey = Key::LEFT;  break;
-					case GLUT_KEY_UP       : pgeKey = Key::UP;    break;
-					case GLUT_KEY_RIGHT    : pgeKey = Key::RIGHT; break;
-					case GLUT_KEY_DOWN     : pgeKey = Key::DOWN;  break;
-					case GLUT_KEY_PAGE_UP  : pgeKey = Key::PGUP;  break;
-					case GLUT_KEY_PAGE_DOWN: pgeKey = Key::PGDN;  break;
-					case GLUT_KEY_HOME     : pgeKey = Key::HOME;  break;
-					case GLUT_KEY_END      : pgeKey = Key::END;   break;
-					case GLUT_KEY_INSERT   : pgeKey = Key::INS;   break;
-					case 111               : pgeKey = Key::DEL;   break;
-					case 112               :
-					case 113               : pgeKey = Key::SHIFT; break;
-					case 114               :
-					case 115               : pgeKey = Key::CTRL; break;
-					default: break;	
+					case '0': case '1': case '2': case '3': case '4':
+					case '5': case '6': case '7': case '8': case '9':
+					case '/': case '*': case '+': case '-': case '.':
+						ptrPGE->olc_UpdateKeyState(mapKeys[key | numpadFlag], false);
+						break;
+					default:
+						break;
 				}
 				
-				std::cout << "Released: " << (int)key << "\n";
-				ptrPGE->olc_UpdateKeyState(pgeKey, false);
+				ptrPGE->olc_UpdateKeyState(mapKeys[key], false);
 			});
 
-			glutMouseFunc([](int button, int state, int x, int y) -> void {
-				switch (button) {
-				case GLUT_LEFT_BUTTON:
-					if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(0, false);
-					else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(0, true);
-					break;
-				case GLUT_MIDDLE_BUTTON:
-					if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(2, false);
-					else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(2, true);
-					break;
-				case GLUT_RIGHT_BUTTON:
-					if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(1, false);
-					else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(1, true);
-					break;
-				}
-				});
+			// Handle KeyPress of the "special" codes
+			glutSpecialFunc([](int key, int x, int y) -> void
+			{
+				ptrPGE->olc_UpdateKeyState(mapKeys[key | specialFlag], true);
+			});
 
-			auto mouseMoveCall = [](int x, int y) -> void {
+			// Handle KeyRelease of the "special" codes
+			glutSpecialUpFunc([](int key, int x, int y) -> void
+			{
+				ptrPGE->olc_UpdateKeyState(mapKeys[key | specialFlag], false);
+			});
+
+			glutMouseFunc([](int button, int state, int x, int y) -> void
+			{
+				switch (button) {
+					case GLUT_LEFT_BUTTON:
+						if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(0, false);
+						else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(0, true);
+						break;
+					case GLUT_MIDDLE_BUTTON:
+						if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(2, false);
+						else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(2, true);
+						break;
+					case GLUT_RIGHT_BUTTON:
+						if (state == GLUT_UP) ptrPGE->olc_UpdateMouseState(1, false);
+						else if (state == GLUT_DOWN) ptrPGE->olc_UpdateMouseState(1, true);
+						break;
+					default:
+						break;
+				}
+			});
+
+			auto mouseMoveCall = [](int x, int y) -> void
+			{
 				ptrPGE->olc_UpdateMouse(x, y);
 			};
 
 			glutMotionFunc(mouseMoveCall);
 			glutPassiveMotionFunc(mouseMoveCall);
 
-			glutEntryFunc([](int state) -> void {
+			glutEntryFunc([](int state) -> void
+			{
 				if (state == GLUT_ENTERED) ptrPGE->olc_UpdateKeyFocus(true);
 				else if (state == GLUT_LEFT) ptrPGE->olc_UpdateKeyFocus(false);
-				});
+			});
 
 			glutDisplayFunc(DrawFunct);
 			glutIdleFunc(ThreadFunct);
