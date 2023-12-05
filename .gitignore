@@ -5,3 +5,11 @@
 /.vs
 /utilities/olcUTIL_AffineView.h
 /utilities/olcUTIL_Maths.h
+
+DemoKeyboard/DemoKeyboard-glut
+DemoKeyboard/DemoKeyboard-xlib
+DemoKeyboard/DemoKeyboard.html
+DemoKeyboard/DemoKeyboard.js
+DemoKeyboard/DemoKeyboard.data
+DemoKeyboard/DemoKeyboard.wasm
+DemoKeyboard/DemoKeyboard.exe
