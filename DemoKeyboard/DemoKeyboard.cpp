@@ -1,17 +1,11 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
-#ifdef None
-#undef None
-#endif
-
-#include "tileson.hpp"
-
 struct Key
 {
     olc::vi2d position;
     olc::vi2d size;
-    olc::Key key;
+    int key;
 };
 
 class DemoKeyboard : public olc::PixelGameEngine
@@ -25,85 +19,110 @@ public:
 
     bool OnUserCreate() override
     {
-        mapKeys["NONE"] = olc::Key::NONE; mapKeys["A"] = olc::Key::A; mapKeys["B"] = olc::Key::B;
-        mapKeys["C"] = olc::Key::C; mapKeys["D"] = olc::Key::D; mapKeys["E"] = olc::Key::E;
-        mapKeys["F"] = olc::Key::F; mapKeys["G"] = olc::Key::G; mapKeys["H"] = olc::Key::H;
-        mapKeys["I"] = olc::Key::I; mapKeys["J"] = olc::Key::J; mapKeys["K"] = olc::Key::K;
-        mapKeys["L"] = olc::Key::L; mapKeys["M"] = olc::Key::M; mapKeys["N"] = olc::Key::N;
-        mapKeys["O"] = olc::Key::O; mapKeys["P"] = olc::Key::P; mapKeys["Q"] = olc::Key::Q;
-        mapKeys["R"] = olc::Key::R; mapKeys["S"] = olc::Key::S; mapKeys["T"] = olc::Key::T;
-        mapKeys["U"] = olc::Key::U; mapKeys["V"] = olc::Key::V; mapKeys["W"] = olc::Key::W;
-        mapKeys["X"] = olc::Key::X; mapKeys["Y"] = olc::Key::Y; mapKeys["Z"] = olc::Key::Z;
-
-        mapKeys["K0"] = olc::Key::K0; mapKeys["K1"] = olc::Key::K1; mapKeys["K2"] = olc::Key::K2;
-        mapKeys["K3"] = olc::Key::K3; mapKeys["K4"] = olc::Key::K4; mapKeys["K5"] = olc::Key::K5;
-        mapKeys["K6"] = olc::Key::K6; mapKeys["K7"] = olc::Key::K7; mapKeys["K8"] = olc::Key::K8;
-        mapKeys["K9"] = olc::Key::K9;
-
-        mapKeys["F1"] = olc::Key::F1; mapKeys["F2"] = olc::Key::F2; mapKeys["F3"] = olc::Key::F3;
-        mapKeys["F4"] = olc::Key::F4; mapKeys["F5"] = olc::Key::F5; mapKeys["F6"] = olc::Key::F6;
-        mapKeys["F7"] = olc::Key::F7; mapKeys["F8"] = olc::Key::F8; mapKeys["F9"] = olc::Key::F9;
-        mapKeys["F10"] = olc::Key::F10; mapKeys["F11"] = olc::Key::F11; mapKeys["F12"] = olc::Key::F12;
-
-        mapKeys["UP"] = olc::Key::UP; mapKeys["DOWN"] = olc::Key::DOWN; mapKeys["LEFT"] = olc::Key::LEFT; mapKeys["RIGHT"] = olc::Key::RIGHT;
-
-        mapKeys["SPACE"] = olc::Key::SPACE; mapKeys["TAB"] = olc::Key::TAB; mapKeys["SHIFT"] = olc::Key::SHIFT;
-        mapKeys["CTRL"] = olc::Key::CTRL; mapKeys["INS"] = olc::Key::INS; mapKeys["DEL"] = olc::Key::DEL;
-        mapKeys["HOME"] = olc::Key::HOME; mapKeys["END"] = olc::Key::END; mapKeys["PGUP"] = olc::Key::PGUP;
-        mapKeys["PGDN"] = olc::Key::PGDN;
-
-        mapKeys["BACK"] = olc::Key::BACK; mapKeys["ESCAPE"] = olc::Key::ESCAPE; mapKeys["RETURN"] = olc::Key::RETURN;
-        mapKeys["ENTER"] = olc::Key::ENTER; mapKeys["PAUSE"] = olc::Key::PAUSE; mapKeys["SCROLL"] = olc::Key::SCROLL;
-
-        mapKeys["NP0"] = olc::Key::NP0; mapKeys["NP1"] = olc::Key::NP1; mapKeys["NP2"] = olc::Key::NP2;
-        mapKeys["NP3"] = olc::Key::NP3; mapKeys["NP4"] = olc::Key::NP4; mapKeys["NP5"] = olc::Key::NP5;
-        mapKeys["NP6"] = olc::Key::NP6; mapKeys["NP7"] = olc::Key::NP7; mapKeys["NP8"] = olc::Key::NP8;
-        mapKeys["NP9"] = olc::Key::NP9; mapKeys["NP_MUL"] = olc::Key::NP_MUL; mapKeys["NP_DIV"] = olc::Key::NP_DIV;
-        mapKeys["NP_ADD"] = olc::Key::NP_ADD; mapKeys["NP_SUB"] = olc::Key::NP_SUB; mapKeys["NP_DECIMAL"] = olc::Key::NP_DECIMAL;
-
-        mapKeys["PERIOD"] = olc::Key::PERIOD; mapKeys["EQUALS"] = olc::Key::EQUALS; mapKeys["COMMA"] = olc::Key::COMMA;
-        mapKeys["MINUS"] = olc::Key::MINUS;
-
-        mapKeys["OEM_1"] = olc::Key::OEM_1; mapKeys["OEM_2"] = olc::Key::OEM_2; mapKeys["OEM_3"] = olc::Key::OEM_3;
-        mapKeys["OEM_4"] = olc::Key::OEM_4; mapKeys["OEM_5"] = olc::Key::OEM_5; mapKeys["OEM_6"] = olc::Key::OEM_6;
-        mapKeys["OEM_7"] = olc::Key::OEM_7; mapKeys["OEM_8"] = olc::Key::OEM_8; mapKeys["CAPS_LOCK"] = olc::Key::CAPS_LOCK;
-        
-        tson::Tileson t;
-        std::unique_ptr<tson::Map> map = t.parse("assets/keyboard.tmj");
-
-        tson::Layer* layerKeys = map->getLayer("keys");
-        if(layerKeys == nullptr)
-        {
-            std::cout << "FUCKKKKK\n";
-            return false;
-        }
-        
-        for(auto key : layerKeys->getObjects())
-        {
-            Key tempKey;
-
-            tempKey.position = olc::vi2d{
-                key.getPosition().x,
-                key.getPosition().y
-            };
-            
-            tempKey.size = olc::vi2d{
-                key.getSize().x,
-                key.getSize().y
-            };
-
-            auto convert = mapKeys.find(key.get<std::string>("Key"));
-            if(convert != mapKeys.end())
-            {
-                tempKey.key = convert->second;
-            }
-            else
-            {
-                tempKey.key = olc::Key::NONE;
-            }
-            vecKeys.push_back(tempKey);
-        }
-
+        vecKeys.push_back(Key{ olc::vi2d{ 18,16 },olc::vi2d{ 12,12 },64 });
+        vecKeys.push_back(Key{ olc::vi2d{ 40,16 },olc::vi2d{ 12,12 },37 });
+        vecKeys.push_back(Key{ olc::vi2d{ 53,16 },olc::vi2d{ 12,12 },38 });
+        vecKeys.push_back(Key{ olc::vi2d{ 66,16 },olc::vi2d{ 12,12 },39 });
+        vecKeys.push_back(Key{ olc::vi2d{ 79,16 },olc::vi2d{ 12,12 },40 });
+        vecKeys.push_back(Key{ olc::vi2d{ 98,16 },olc::vi2d{ 12,12 },41 });
+        vecKeys.push_back(Key{ olc::vi2d{ 111,16 },olc::vi2d{ 12,12 },42 });
+        vecKeys.push_back(Key{ olc::vi2d{ 124,16 },olc::vi2d{ 12,12 },43 });
+        vecKeys.push_back(Key{ olc::vi2d{ 137,16 },olc::vi2d{ 12,12 },44 });
+        vecKeys.push_back(Key{ olc::vi2d{ 155,16 },olc::vi2d{ 12,12 },45 });
+        vecKeys.push_back(Key{ olc::vi2d{ 168,16 },olc::vi2d{ 12,12 },46 });
+        vecKeys.push_back(Key{ olc::vi2d{ 181,16 },olc::vi2d{ 12,12 },47 });
+        vecKeys.push_back(Key{ olc::vi2d{ 194,16 },olc::vi2d{ 12,12 },48 });
+        vecKeys.push_back(Key{ olc::vi2d{ 212,16 },olc::vi2d{ 12,12 },0 });
+        vecKeys.push_back(Key{ olc::vi2d{ 226,16 },olc::vi2d{ 12,12 },68 });
+        vecKeys.push_back(Key{ olc::vi2d{ 240,16 },olc::vi2d{ 12,12 },67 });
+        vecKeys.push_back(Key{ olc::vi2d{ 9,35 },olc::vi2d{ 12,12 },90 });
+        vecKeys.push_back(Key{ olc::vi2d{ 22,35 },olc::vi2d{ 12,12 },28 });
+        vecKeys.push_back(Key{ olc::vi2d{ 29,48 },olc::vi2d{ 11,12 },17 });
+        vecKeys.push_back(Key{ olc::vi2d{ 32,61 },olc::vi2d{ 11,12 },1 });
+        vecKeys.push_back(Key{ olc::vi2d{ 35,35 },olc::vi2d{ 12,12 },29 });
+        vecKeys.push_back(Key{ olc::vi2d{ 42,48 },olc::vi2d{ 11,12 },23 });
+        vecKeys.push_back(Key{ olc::vi2d{ 45,61 },olc::vi2d{ 11,12 },19 });
+        vecKeys.push_back(Key{ olc::vi2d{ 49,35 },olc::vi2d{ 12,12 },30 });
+        vecKeys.push_back(Key{ olc::vi2d{ 55,48 },olc::vi2d{ 11,12 },5 });
+        vecKeys.push_back(Key{ olc::vi2d{ 58,61 },olc::vi2d{ 11,12 },4 });
+        vecKeys.push_back(Key{ olc::vi2d{ 62,35 },olc::vi2d{ 12,12 },31 });
+        vecKeys.push_back(Key{ olc::vi2d{ 68,48 },olc::vi2d{ 11,12 },18 });
+        vecKeys.push_back(Key{ olc::vi2d{ 72,61 },olc::vi2d{ 11,12 },6 });
+        vecKeys.push_back(Key{ olc::vi2d{ 75,35 },olc::vi2d{ 12,12 },32 });
+        vecKeys.push_back(Key{ olc::vi2d{ 82,48 },olc::vi2d{ 11,12 },20 });
+        vecKeys.push_back(Key{ olc::vi2d{ 85,61 },olc::vi2d{ 11,12 },7 });
+        vecKeys.push_back(Key{ olc::vi2d{ 88,35 },olc::vi2d{ 12,12 },33 });
+        vecKeys.push_back(Key{ olc::vi2d{ 95,48 },olc::vi2d{ 11,12 },25 });
+        vecKeys.push_back(Key{ olc::vi2d{ 98,61 },olc::vi2d{ 11,12 },8 });
+        vecKeys.push_back(Key{ olc::vi2d{ 102,35 },olc::vi2d{ 12,12 },34 });
+        vecKeys.push_back(Key{ olc::vi2d{ 108,48 },olc::vi2d{ 11,12 },21 });
+        vecKeys.push_back(Key{ olc::vi2d{ 111,61 },olc::vi2d{ 11,12 },10 });
+        vecKeys.push_back(Key{ olc::vi2d{ 115,35 },olc::vi2d{ 12,12 },35 });
+        vecKeys.push_back(Key{ olc::vi2d{ 121,48 },olc::vi2d{ 11,12 },9 });
+        vecKeys.push_back(Key{ olc::vi2d{ 125,61 },olc::vi2d{ 11,12 },11 });
+        vecKeys.push_back(Key{ olc::vi2d{ 128,35 },olc::vi2d{ 12,12 },36 });
+        vecKeys.push_back(Key{ olc::vi2d{ 134,48 },olc::vi2d{ 11,12 },15 });
+        vecKeys.push_back(Key{ olc::vi2d{ 138,61 },olc::vi2d{ 11,12 },12 });
+        vecKeys.push_back(Key{ olc::vi2d{ 141,35 },olc::vi2d{ 12,12 },27 });
+        vecKeys.push_back(Key{ olc::vi2d{ 148,48 },olc::vi2d{ 11,12 },16 });
+        vecKeys.push_back(Key{ olc::vi2d{ 151,61 },olc::vi2d{ 11,12 },88 });
+        vecKeys.push_back(Key{ olc::vi2d{ 155,35 },olc::vi2d{ 12,12 },87 });
+        vecKeys.push_back(Key{ olc::vi2d{ 161,48 },olc::vi2d{ 11,12 },91 });
+        vecKeys.push_back(Key{ olc::vi2d{ 165,61 },olc::vi2d{ 11,12 },94 });
+        vecKeys.push_back(Key{ olc::vi2d{ 168,35 },olc::vi2d{ 12,12 },85 });
+        vecKeys.push_back(Key{ olc::vi2d{ 175,48 },olc::vi2d{ 11,12 },93 });
+        vecKeys.push_back(Key{ olc::vi2d{ 181,35 },olc::vi2d{ 25,12 },63 });
+        vecKeys.push_back(Key{ olc::vi2d{ 188,48 },olc::vi2d{ 18,12 },92 });
+        vecKeys.push_back(Key{ olc::vi2d{ 178,61 },olc::vi2d{ 28,12 },66 });
+        vecKeys.push_back(Key{ olc::vi2d{ 39,74 },olc::vi2d{ 11,12 },26 });
+        vecKeys.push_back(Key{ olc::vi2d{ 52,74 },olc::vi2d{ 11,12 },24 });
+        vecKeys.push_back(Key{ olc::vi2d{ 65,74 },olc::vi2d{ 11,12 },3 });
+        vecKeys.push_back(Key{ olc::vi2d{ 78,74 },olc::vi2d{ 11,12 },22 });
+        vecKeys.push_back(Key{ olc::vi2d{ 91,74 },olc::vi2d{ 11,12 },2 });
+        vecKeys.push_back(Key{ olc::vi2d{ 105,74 },olc::vi2d{ 11,12 },14 });
+        vecKeys.push_back(Key{ olc::vi2d{ 118,74 },olc::vi2d{ 11,12 },13 });
+        vecKeys.push_back(Key{ olc::vi2d{ 131,74 },olc::vi2d{ 11,12 },86 });
+        vecKeys.push_back(Key{ olc::vi2d{ 144,74 },olc::vi2d{ 11,12 },84 });
+        vecKeys.push_back(Key{ olc::vi2d{ 157,74 },olc::vi2d{ 11,12 },89 });
+        vecKeys.push_back(Key{ olc::vi2d{ 171,74 },olc::vi2d{ 35,12 },55 });
+        vecKeys.push_back(Key{ olc::vi2d{ 9,48 },olc::vi2d{ 19,12 },54 });
+        vecKeys.push_back(Key{ olc::vi2d{ 9,61 },olc::vi2d{ 22,12 },96 });
+        vecKeys.push_back(Key{ olc::vi2d{ 9,74 },olc::vi2d{ 29,12 },55 });
+        vecKeys.push_back(Key{ olc::vi2d{ 212,35 },olc::vi2d{ 12,12 },57 });
+        vecKeys.push_back(Key{ olc::vi2d{ 212,48 },olc::vi2d{ 12,12 },58 });
+        vecKeys.push_back(Key{ olc::vi2d{ 226,35 },olc::vi2d{ 12,12 },59 });
+        vecKeys.push_back(Key{ olc::vi2d{ 226,48 },olc::vi2d{ 12,12 },60 });
+        vecKeys.push_back(Key{ olc::vi2d{ 240,35 },olc::vi2d{ 12,12 },61 });
+        vecKeys.push_back(Key{ olc::vi2d{ 240,48 },olc::vi2d{ 12,12 },62 });
+        vecKeys.push_back(Key{ olc::vi2d{ 257,48 },olc::vi2d{ 12,12 },76 });
+        vecKeys.push_back(Key{ olc::vi2d{ 270,48 },olc::vi2d{ 12,12 },77 });
+        vecKeys.push_back(Key{ olc::vi2d{ 283,48 },olc::vi2d{ 12,12 },78 });
+        vecKeys.push_back(Key{ olc::vi2d{ 296,48 },olc::vi2d{ 12,24 },81 });
+        vecKeys.push_back(Key{ olc::vi2d{ 257,35 },olc::vi2d{ 12,12 },0 });
+        vecKeys.push_back(Key{ olc::vi2d{ 270,35 },olc::vi2d{ 12,12 },80 });
+        vecKeys.push_back(Key{ olc::vi2d{ 283,35 },olc::vi2d{ 12,12 },79 });
+        vecKeys.push_back(Key{ olc::vi2d{ 296,35 },olc::vi2d{ 12,12 },82 });
+        vecKeys.push_back(Key{ olc::vi2d{ 257,61 },olc::vi2d{ 12,12 },73 });
+        vecKeys.push_back(Key{ olc::vi2d{ 270,61 },olc::vi2d{ 12,12 },74 });
+        vecKeys.push_back(Key{ olc::vi2d{ 283,61 },olc::vi2d{ 12,12 },75 });
+        vecKeys.push_back(Key{ olc::vi2d{ 257,74 },olc::vi2d{ 12,12 },70 });
+        vecKeys.push_back(Key{ olc::vi2d{ 270,74 },olc::vi2d{ 12,12 },71 });
+        vecKeys.push_back(Key{ olc::vi2d{ 283,74 },olc::vi2d{ 12,12 },72 });
+        vecKeys.push_back(Key{ olc::vi2d{ 296,74 },olc::vi2d{ 12,24 },66 });
+        vecKeys.push_back(Key{ olc::vi2d{ 257,87 },olc::vi2d{ 24,12 },69 });
+        vecKeys.push_back(Key{ olc::vi2d{ 283,87 },olc::vi2d{ 12,12 },83 });
+        vecKeys.push_back(Key{ olc::vi2d{ 226,75 },olc::vi2d{ 12,12 },49 });
+        vecKeys.push_back(Key{ olc::vi2d{ 212,88 },olc::vi2d{ 12,12 },51 });
+        vecKeys.push_back(Key{ olc::vi2d{ 226,88 },olc::vi2d{ 12,12 },50 });
+        vecKeys.push_back(Key{ olc::vi2d{ 240,88 },olc::vi2d{ 12,12 },52 });
+        vecKeys.push_back(Key{ olc::vi2d{ 30,87 },olc::vi2d{ 11,11 },0 });
+        vecKeys.push_back(Key{ olc::vi2d{ 47,87 },olc::vi2d{ 11,11 },0 });
+        vecKeys.push_back(Key{ olc::vi2d{ 64,87 },olc::vi2d{ 75,11 },53 });
+        vecKeys.push_back(Key{ olc::vi2d{ 143,87 },olc::vi2d{ 11,11 },0 });
+        vecKeys.push_back(Key{ olc::vi2d{ 160,87 },olc::vi2d{ 11,11 },0 });
+        vecKeys.push_back(Key{ olc::vi2d{ 176,87 },olc::vi2d{ 11,11 },0 });
+        vecKeys.push_back(Key{ olc::vi2d{ 192,87 },olc::vi2d{ 14,11 },56 });
+        vecKeys.push_back(Key{ olc::vi2d{ 9,87 },olc::vi2d{ 18,11 },56 });
         renKeyboard.Load("assets/keyboard.png");
         
         return true;
@@ -115,20 +134,17 @@ public:
         DrawSprite(0,0, renKeyboard.Sprite());
         for(auto &key : vecKeys)
         {
-            if(GetKey(key.key).bHeld)
+            if(GetKey((olc::Key)key.key).bHeld)
             {
                 FillRect(key.position, key.size, olc::BLUE);
             }
-            DrawRect(key.position, key.size, olc::WHITE);
+            DrawRect(key.position, key.size - olc::vi2d{1, 1}, olc::WHITE);
         }
         return true;
     }
 
-    std::map<std::string, olc::Key> mapKeys;
     std::vector<Key> vecKeys;
-
     olc::Renderable renKeyboard;
-
 };
 
 
