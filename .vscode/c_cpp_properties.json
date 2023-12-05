@@ -1,0 +1,61 @@
+{
+    "configurations": [
+        {
+            "name": "X11",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/DemoKeyboard/**",
+                "/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include",
+                "/usr/local/include",
+                "/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include-fixed",
+                "/usr/local/include",
+                "/usr/include"
+            ],
+            "defines": [
+                "OLC_PGE_APPLICATION"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "GLUT",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/DemoKeyboard/**",
+                "/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include",
+                "/usr/local/include",
+                "/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include-fixed",
+                "/usr/local/include",
+                "/usr/include"
+            ],
+            "defines": [
+                "OLC_PGE_APPLICATION",
+                "OLC_PLATFORM_GLUT"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "Emscripten",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/DemoKeyboard/**",
+                "/opt/emsdk/upstream/emscripten/system/include/**"
+            ],
+            "defines": [
+                "OLC_PGE_APPLICATION",
+                "__EMSCRIPTEN__"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}
