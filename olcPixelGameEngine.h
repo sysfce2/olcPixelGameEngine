@@ -6482,6 +6482,8 @@ namespace olc {
 			mapKeys['7' | numpadFlag] = Key::NP7;    mapKeys['8' | numpadFlag] = Key::NP8;    mapKeys['9' | numpadFlag] = Key::NP9;
 			mapKeys['0' | numpadFlag] = Key::NP0;    mapKeys['/' | numpadFlag] = Key::NP_DIV; mapKeys['*' | numpadFlag] = Key::NP_MUL;
 			mapKeys['+' | numpadFlag] = Key::NP_ADD; mapKeys['-' | numpadFlag] = Key::NP_SUB; mapKeys['.' | numpadFlag] = Key::NP_DECIMAL;
+			// numpad enter on mac? ... oh well
+			mapKeys[3] = Key::ENTER;
 
 			mapKeys[127] = Key::BACK; mapKeys[9] = Key::TAB; mapKeys[13] = Key::ENTER;
 			mapKeys[8] = Key::DEL; mapKeys[27] = Key::ESCAPE; mapKeys[' '] = Key::SPACE;
