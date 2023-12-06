@@ -6483,8 +6483,8 @@ namespace olc {
 			mapKeys['0' | numpadFlag] = Key::NP0;    mapKeys['/' | numpadFlag] = Key::NP_DIV; mapKeys['*' | numpadFlag] = Key::NP_MUL;
 			mapKeys['+' | numpadFlag] = Key::NP_ADD; mapKeys['-' | numpadFlag] = Key::NP_SUB; mapKeys['.' | numpadFlag] = Key::NP_DECIMAL;
 
-			mapKeys[8] = Key::BACK; mapKeys[9] = Key::TAB; mapKeys[13] = Key::ENTER;
-			mapKeys[127] = Key::DEL; mapKeys[27] = Key::ESCAPE; mapKeys[' '] = Key::SPACE;
+			mapKeys[127] = Key::BACK; mapKeys[9] = Key::TAB; mapKeys[13] = Key::ENTER;
+			mapKeys[8] = Key::DEL; mapKeys[27] = Key::ESCAPE; mapKeys[' '] = Key::SPACE;
 			mapKeys['.'] = Key::PERIOD;
 
 			mapKeys['0'] = Key::K0; mapKeys['1'] = Key::K1; mapKeys['2'] = Key::K2; mapKeys['3'] = Key::K3;
@@ -6549,7 +6549,7 @@ namespace olc {
 					default:
 						break;
 				}
-				
+				std::cout << "PRESSED: " << key << "\n";
 				ptrPGE->olc_UpdateKeyState(mapKeys[key], false);
 			});
 
@@ -6562,6 +6562,7 @@ namespace olc {
 			// Handle KeyRelease of the "special" codes
 			glutSpecialUpFunc([](int key, int x, int y) -> void
 			{
+				std::cout << "PRESSED: " << key << "\n";
 				ptrPGE->olc_UpdateKeyState(mapKeys[key | specialFlag], false);
 			});
 
