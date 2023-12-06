@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 #
 # Find and uncomment your platform and comment out the rest!
@@ -8,9 +8,9 @@
 # clang++ -I.. -o DemoKeyboard-mac DemoKeyboard.cpp -arch x86_64 -std=c++20 -mmacosx-version-min=10.15 -Wall -framework OpenGL -framework GLUT -framework Carbon -lpng
 
 # Linux XLIB
-clang++ -I.. -o DemoKeyboard-xlib DemoKeyboard.cpp -O2 -lX11 -lGL -lm -lpthread -lpng -lstdc++fs -std=c++20
+# clang++ -I.. -o DemoKeyboard-xlib DemoKeyboard.cpp -O2 -lX11 -lGL -lm -lpthread -lpng -lstdc++fs -std=c++20
 
-# LInux GLUT
+# Linux GLUT
 # clang++ -I.. -o DemoKeyboard-glut DemoKeyboard.cpp -O2 -lglut -lGL -lm -lpng -lstdc++fs -std=c++20 -DOLC_PLATFORM_GLUT
 
 # Emscripten
