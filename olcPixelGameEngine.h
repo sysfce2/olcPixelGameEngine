@@ -6459,7 +6459,8 @@ namespace olc {
 			
 			constexpr int specialFlag = 0x80000000;
 			constexpr int numpadFlag  = 0x40000000;
-			
+
+
 			// "special" keys
 			mapKeys[GLUT_KEY_F1         | specialFlag] = Key::F1;    mapKeys[GLUT_KEY_F2         | specialFlag] = Key::F2;
 			mapKeys[GLUT_KEY_F3         | specialFlag] = Key::F3;    mapKeys[GLUT_KEY_F4         | specialFlag] = Key::F4;
@@ -6471,9 +6472,9 @@ namespace olc {
 			mapKeys[GLUT_KEY_RIGHT      | specialFlag] = Key::RIGHT; mapKeys[GLUT_KEY_DOWN       | specialFlag] = Key::DOWN;
 			mapKeys[GLUT_KEY_PAGE_UP    | specialFlag] = Key::PGUP;  mapKeys[GLUT_KEY_PAGE_DOWN  | specialFlag] = Key::PGDN;
 			mapKeys[GLUT_KEY_HOME       | specialFlag] = Key::HOME;  mapKeys[GLUT_KEY_END        | specialFlag] = Key::END;
-			mapKeys[GLUT_KEY_INSERT     | specialFlag] = Key::INS;   mapKeys[GLUT_KEY_DELETE     | specialFlag] = Key::DEL;
-			mapKeys[GLUT_KEY_SHIFT_L    | specialFlag] = Key::SHIFT; mapKeys[GLUT_KEY_SHIFT_R    | specialFlag] = Key::SHIFT;
-			mapKeys[GLUT_KEY_CTRL_L     | specialFlag] = Key::CTRL;  mapKeys[GLUT_KEY_CTRL_R     | specialFlag] = Key::CTRL;
+			mapKeys[GLUT_KEY_INSERT     | specialFlag] = Key::INS;   mapKeys[0x006F              | specialFlag] = Key::DEL;
+			mapKeys[0x0070              | specialFlag] = Key::SHIFT; mapKeys[0x0071              | specialFlag] = Key::SHIFT;
+			mapKeys[0x0072              | specialFlag] = Key::CTRL;  mapKeys[0x0073              | specialFlag] = Key::CTRL;
 
 			// numpad keys
 			mapKeys['1' | numpadFlag] = Key::NP1;    mapKeys['2' | numpadFlag] = Key::NP2;    mapKeys['3' | numpadFlag] = Key::NP3;
