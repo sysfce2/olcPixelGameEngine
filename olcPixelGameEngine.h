@@ -563,6 +563,7 @@ int main()
 	#endif
 	#if defined(__APPLE__)
 		#include <GLUT/glut.h>
+		#include <cassert>
 	#include <objc/message.h>
 	#include <objc/NSObjCRuntime.h>
 	#endif
